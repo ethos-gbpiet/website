@@ -25,12 +25,14 @@ export function PageHeader({
   return (
     <section
       className={cn(
-        'relative py-16 bg-grid overflow-hidden',
+        'relative pt-28 pb-14 md:pt-32 md:pb-20 bg-grid bg-grid-fade overflow-hidden border-b border-border/40',
         className
       )}
     >
       {/* Radial glow overlay */}
-      <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-glow pointer-events-none opacity-60" />
+      {/* Subtle scan line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <div
         className={cn(
@@ -39,22 +41,28 @@ export function PageHeader({
         )}
       >
         {eyebrow && (
-          <p className="text-xs font-mono text-primary mb-3">
+          <p className={cn(
+            'text-[11px] font-mono text-primary mb-4 uppercase tracking-[0.2em] terminal-prompt',
+            centered && 'inline-flex'
+          )}>
             {eyebrow}
           </p>
         )}
 
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 max-w-3xl leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-5 max-w-4xl leading-[1.05] tracking-tight">
           {title}
         </h1>
 
         {description && (
-          <p className={cn('text-muted-foreground max-w-xl leading-relaxed', centered && 'mx-auto')}>
+          <p className={cn(
+            'text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed',
+            centered && 'mx-auto'
+          )}>
             {description}
           </p>
         )}
 
-        {children && <div className="mt-6">{children}</div>}
+        {children && <div className="mt-8">{children}</div>}
       </div>
     </section>
   )

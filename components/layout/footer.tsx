@@ -21,35 +21,36 @@ const footerLinks = {
     { label: 'Contact Us',   href: '/contact' },
     { label: 'Collaborate',  href: '/collaborate' },
     { label: 'Feedback',     href: '/feedback' },
-    { label: 'Admin Portal', href: '/admin/dashboard' },
+    { label: 'Member Portal', href: '/member/login' },
   ],
 }
 
 export default function Footer() {
-  const s = useSiteSettings()   // reads from SiteProvider → API → disk
+  const s = useSiteSettings()
 
   return (
-    <footer className="border-t border-border bg-card/50 mt-auto">
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="border-t border-border bg-card/40 mt-auto relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="container mx-auto px-4 py-14 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-md bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <Link href="/" className="flex items-center gap-2 mb-4">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
                 <Cpu className="w-4 h-4 text-primary" />
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-display font-extrabold text-base">
                   {s.siteName.slice(0, 2)}<span className="text-primary">{s.siteName.slice(2)}</span>
                 </span>
-                <span className="text-[9px] font-mono text-muted-foreground leading-tight">{s.siteTagline}</span>
+                <span className="text-[9px] font-mono text-muted-foreground leading-tight mt-0.5">{s.siteTagline}</span>
               </div>
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
               {s.collegeFullName}. Building the hardware engineers of tomorrow through
               PCB design, embedded systems, and hands-on innovation.
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {[
                 { href: s.github,                     icon: Github,   label: 'GitHub' },
                 { href: s.twitter,                    icon: Twitter,  label: 'Twitter' },
@@ -58,7 +59,7 @@ export default function Footer() {
               ].map(({ href, icon: Icon, label }) => (
                 <a key={label} href={href} aria-label={label} target={href.startsWith('http') ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  className="p-2 rounded-md border border-transparent text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <Icon className="w-4 h-4" />
                 </a>
               ))}
@@ -68,8 +69,8 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="font-display font-semibold text-sm mb-4">{category}</h3>
-              <ul className="space-y-2">
+              <h3 className="font-mono text-[11px] uppercase tracking-widest text-primary mb-4">{`// ${category}`}</h3>
+              <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href}
@@ -84,12 +85,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-border mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-border mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} {s.siteName} — {s.siteTagline}, {s.collegeFullName}.
+            © {new Date().getFullYear()} {s.siteName} — {s.collegeFullName}. All rights reserved.
           </p>
           <p className="text-xs font-mono text-muted-foreground">
-            Est. {s.foundedYear} &nbsp;·&nbsp; Built with Next.js
+            <span className="terminal-prompt">est. {s.foundedYear}</span> &nbsp;·&nbsp; built with Next.js
           </p>
         </div>
       </div>

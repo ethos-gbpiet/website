@@ -10,10 +10,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+          'flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm transition-colors',
           'ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium',
-          'placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'placeholder:text-muted-foreground/70',
+          'hover:border-border/80',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-primary/40',
           'disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
@@ -33,9 +34,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
-          'ring-offset-background placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'flex min-h-[96px] w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm transition-colors leading-relaxed',
+          'ring-offset-background placeholder:text-muted-foreground/70',
+          'hover:border-border/80',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-primary/40',
           'disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
@@ -55,7 +57,7 @@ const Label = React.forwardRef<
   <label
     ref={ref}
     className={cn(
-      'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+      'text-xs font-medium leading-none uppercase tracking-wider font-mono text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
       className
     )}
     {...props}
@@ -71,8 +73,9 @@ const Select = React.forwardRef<
   <select
     ref={ref}
     className={cn(
-      'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+      'flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm transition-colors',
+      'hover:border-border/80',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40',
       'disabled:cursor-not-allowed disabled:opacity-50',
       className
     )}
@@ -83,4 +86,32 @@ const Select = React.forwardRef<
 ))
 Select.displayName = 'Select'
 
-export { Input, Textarea, Label, Select }
+// ── Field group: label + helper text wrapper ──
+interface FieldProps {
+  label?: string
+  hint?: string
+  error?: string
+  required?: boolean
+  children: React.ReactNode
+  className?: string
+}
+function Field({ label, hint, error, required, children, className }: FieldProps) {
+  return (
+    <div className={cn('space-y-1.5', className)}>
+      {label && (
+        <Label>
+          {label}
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+      )}
+      {children}
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : hint ? (
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      ) : null}
+    </div>
+  )
+}
+
+export { Input, Textarea, Label, Select, Field }

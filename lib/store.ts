@@ -1,17 +1,28 @@
 // ─── EtHOS Persistent Store ──────────────────────────────────────────────────
 // All data is saved to localStorage so admin changes persist across sessions.
 // In production, replace localStorage calls with API/database calls.
+//
+// Auth helpers (login/logout/isAuthed) are re-exported from `lib/auth.ts`
+// for backwards compatibility.
+
+import {
+  getCurrentUser,
+  setSession,
+  signOut as authSignOut,
+  isAuthed as authIsAuthed,
+  type Role,
+} from '@/lib/auth'
 
 export interface TeamMember {
   id: string
   name: string
   role: string
-  year: string          // e.g. "4th Year, ECE"
-  yearNum: 1 | 2 | 3 | 4 | 5  // numeric for sorting (5 = faculty/mentor)
+  year: string
+  yearNum: 1 | 2 | 3 | 4 | 5
   bio: string
   domain: string
-  photo?: string        // base64 data URL
-  resume?: string       // base64 PDF data URL
+  photo?: string
+  resume?: string
   github?: string
   linkedin?: string
   email?: string
@@ -22,7 +33,7 @@ export interface TeamMember {
 export interface SiteSettings {
   siteName: string
   siteTagline: string
-  heroHeading: string[]        // array of lines e.g. ["Design.", "Build.", "Power."]
+  heroHeading: string[]
   heroSubtext: string
   aboutTitle: string
   aboutBody: string
@@ -35,6 +46,8 @@ export interface SiteSettings {
   linkedin: string
   collegeFullName: string
   foundedYear: string
+  adminUsername?: string
+  adminPassword?: string
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -111,7 +124,6 @@ export function getSettings(): SiteSettings {
 export function saveSettings(settings: SiteSettings): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
-  // Dispatch event so open tabs can react
   window.dispatchEvent(new Event('ethos-settings-updated'))
 }
 
@@ -152,41 +164,41 @@ export function deleteTeamMember(id: string): void {
 }
 
 // ─── Hook: live settings (re-renders on change) ───────────────────────────────
-// Usage in client components: const settings = useSettings()
 export function useSettings(): SiteSettings {
-  // This is used by client components — they import it and call it
-  // SSR-safe: returns defaultSettings on server
   if (typeof window === 'undefined') return defaultSettings
   return getSettings()
 }
 
-// ─── Auth helpers ─────────────────────────────────────────────────────────────
-// Simple credential-based auth stored in sessionStorage (cleared on tab close).
-// In production: replace with NextAuth / Clerk / JWT.
+// ─── Auth (back-compat shim — real implementation lives in lib/auth.ts) ───────
 
-const AUTH_KEY = 'ethos_admin_authed'
-
-// Default credentials — admin should change these in Settings
 export const DEFAULT_ADMIN = { username: 'ethos_admin', password: 'EtHOS@2025' }
 
 export function isAuthed(): boolean {
-  if (typeof window === 'undefined') return false
-  return sessionStorage.getItem(AUTH_KEY) === 'true'
+  return authIsAuthed()
 }
 
+/**
+ * Username/password admin login. Validates against settings (or defaults),
+ * then promotes the session to `super_admin` so they can access all admin pages.
+ */
 export function login(username: string, password: string): boolean {
-  // Read from settings or fall back to default
   const s = getSettings() as any
   const u = s.adminUsername || DEFAULT_ADMIN.username
   const p = s.adminPassword || DEFAULT_ADMIN.password
   if (username === u && password === p) {
-    sessionStorage.setItem(AUTH_KEY, 'true')
+    setSession({
+      id: 'admin',
+      name: username === 'ethos_admin' ? 'Administrator' : username,
+      username,
+      role: 'super_admin',
+    })
     return true
   }
   return false
 }
 
 export function logout(): void {
-  if (typeof window === 'undefined') return
-  sessionStorage.removeItem(AUTH_KEY)
+  authSignOut()
 }
+
+export type { Role }
