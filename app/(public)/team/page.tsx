@@ -2,10 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Github, Linkedin, Mail, ChevronRight, Users, FileText } from 'lucide-react'
+import { Github, Linkedin, Mail, ChevronRight, Users, FileText, Instagram } from 'lucide-react'
 import { TeamMember, defaultTeam } from '@/lib/store'
 
-// ─── Domain colour map ────────────────────────────────────────────────────────
+// Role rank: HOD > Faculty Coordinator > Super-Admin > Admin > Members = Creator = Other
+const ROLE_RANK: Record<string, number> = {
+  hod: 1, faculty_coordinator: 2, faculty: 3,
+  super_admin: 4, admin: 5,
+  technical_lead: 6, events_lead: 6, content_lead: 6, design_lead: 6,
+  core: 7, coordinator: 7,
+  creator: 8, user: 9, member: 9,
+}
+const roleRank = (r: string) => ROLE_RANK[r?.toLowerCase().replace(/ /g, '_')] ?? 10
+
 const domainColor: Record<string, string> = {
   'Faculty':           'bg-primary/10 text-primary border-primary/25',
   'VLSI & Embedded':   'bg-primary/10 text-primary border-primary/25',
@@ -19,7 +28,6 @@ const domainColor: Record<string, string> = {
   'Events':            'bg-orange-400/10 text-orange-400 border-orange-400/20',
 }
 
-// ─── Avatar — initials only, zero img/onError ─────────────────────────────────
 function Avatar({ member, size = 'md' }: { member: TeamMember; size?: 'sm' | 'md' | 'lg' | 'xl' }) {
   const sizeMap = { sm: 40, md: 56, lg: 80, xl: 112 }
   const px = sizeMap[size]
@@ -44,7 +52,6 @@ function Avatar({ member, size = 'md' }: { member: TeamMember; size?: 'sm' | 'md
       </div>
     )
   }
-
   return (
     <div className={`${colours[idx]} rounded-full border-2 flex items-center justify-center font-display font-bold shrink-0 select-none`}
       style={{ width: px, height: px, fontSize }}>
@@ -53,12 +60,12 @@ function Avatar({ member, size = 'md' }: { member: TeamMember; size?: 'sm' | 'md
   )
 }
 
-// ─── Social links row ─────────────────────────────────────────────────────────
 function SocialRow({ member, compact = false }: { member: TeamMember; compact?: boolean }) {
   const links = [
-    member.github   && { href: member.github,           Icon: Github,   label: 'GitHub',   hover: 'hover:text-foreground' },
-    member.linkedin && { href: member.linkedin,          Icon: Linkedin, label: 'LinkedIn', hover: 'hover:text-sky-400' },
-    member.email    && { href: `mailto:${member.email}`, Icon: Mail,     label: 'Email',    hover: 'hover:text-primary' },
+    member.github    && { href: member.github,            Icon: Github,    label: 'GitHub',    hover: 'hover:text-foreground' },
+    member.linkedin  && { href: member.linkedin,          Icon: Linkedin,  label: 'LinkedIn',  hover: 'hover:text-sky-400' },
+    member.instagram && { href: member.instagram,         Icon: Instagram, label: 'Instagram', hover: 'hover:text-pink-400' },
+    member.email     && { href: `mailto:${member.email}`, Icon: Mail,      label: 'Email',     hover: 'hover:text-primary' },
   ].filter(Boolean) as { href: string; Icon: React.ElementType; label: string; hover: string }[]
 
   if (!links.length) return null
@@ -74,8 +81,6 @@ function SocialRow({ member, compact = false }: { member: TeamMember; compact?: 
     </div>
   )
 }
-
-// ─── Card variants ────────────────────────────────────────────────────────────
 
 function FacultyCard({ member }: { member: TeamMember }) {
   return (
@@ -170,7 +175,7 @@ function MemberCard({ member }: { member: TeamMember }) {
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">{member.name}</h3>
             <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border shrink-0 ${domainColor[member.domain] ?? 'bg-muted/50 text-muted-foreground border-border'}`}>
-              {member.domain.split(' ')[0]}
+              {member.domain?.split(' ')[0]}
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground font-mono">{member.year}</p>
@@ -186,7 +191,32 @@ function MemberCard({ member }: { member: TeamMember }) {
   )
 }
 
-// ─── Year group divider ───────────────────────────────────────────────────────
+function ExMemberCard({ member }: { member: TeamMember }) {
+  return (
+    <Link href={`/team/${member.id}`} className="block group">
+      <div className="bg-card/50 border border-border/50 rounded-xl p-4 flex items-start gap-3 hover:border-primary/20 transition-all duration-200 hover:-translate-y-0.5 opacity-80 hover:opacity-100">
+        <div className="relative shrink-0">
+          <Avatar member={member} size="sm" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-muted border border-border" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">{member.name}</h3>
+            {member.exitYear && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border shrink-0 bg-muted/50 text-muted-foreground border-border">
+                {member.exitYear}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-primary font-mono">{member.role}</p>
+          <p className="text-[11px] text-muted-foreground font-mono">{member.year}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-1 line-clamp-2">{member.bio}</p>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 function YearBadge({ year, count }: { year: string; count: number }) {
   return (
     <div className="flex items-center gap-3 mb-5">
@@ -201,7 +231,6 @@ function YearBadge({ year, count }: { year: string; count: number }) {
   )
 }
 
-// ─── Section block ────────────────────────────────────────────────────────────
 function Section({ label, title, count, children }: {
   label: string; title: string; count?: number; children: React.ReactNode
 }) {
@@ -221,21 +250,27 @@ function Section({ label, title, count, children }: {
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function TeamPage() {
   const [team, setTeam] = useState<TeamMember[]>([])
+  const [exMembers, setExMembers] = useState<TeamMember[]>([])
   const [domainFilter, setDomainFilter] = useState('All')
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/team', { cache: 'no-store' })
+        const [res, exRes] = await Promise.all([
+          fetch('/api/team', { cache: 'no-store' }),
+          fetch('/api/team?ex=1', { cache: 'no-store' }),
+        ])
         if (res.ok) {
           const data = await res.json()
           setTeam(Array.isArray(data) && data.length > 0 ? data : defaultTeam)
         } else {
           setTeam(defaultTeam)
+        }
+        if (exRes.ok) {
+          const exData = await exRes.json()
+          setExMembers(Array.isArray(exData) ? exData : [])
         }
       } catch {
         setTeam(defaultTeam)
@@ -244,7 +279,6 @@ export default function TeamPage() {
     load()
   }, [])
 
-  // Derived groups
   const faculty    = team.filter(m => m.section === 'faculty')
   const leadership = team.filter(m => m.section === 'leadership')
   const core       = team.filter(m => m.section === 'core')
@@ -252,12 +286,24 @@ export default function TeamPage() {
   const events     = team.filter(m => m.section === 'events')
   const allMembers = team.filter(m => m.section === 'member')
 
-  // Members: sort by yearNum descending (4 → 3 → 2 → 1), then name
+  const sortGroup = (arr: TeamMember[]) =>
+    [...arr].sort((a, b) => {
+      const rr = roleRank(a.role) - roleRank(b.role)
+      if (rr !== 0) return rr
+      if (b.yearNum !== a.yearNum) return b.yearNum - a.yearNum
+      return a.name.localeCompare(b.name)
+    })
+
+  const sortedFaculty    = sortGroup(faculty)
+  const sortedLeadership = sortGroup(leadership)
+  const sortedCore       = sortGroup(core)
+  const sortedTechnical  = sortGroup(technical)
+  const sortedEvents     = sortGroup(events)
+
   const sortedMembers = [...allMembers].sort((a, b) =>
     b.yearNum !== a.yearNum ? b.yearNum - a.yearNum : a.name.localeCompare(b.name)
   )
 
-  // Group members by year label
   const membersByYear = sortedMembers.reduce<Record<string, TeamMember[]>>((acc, m) => {
     const key = m.yearNum === 1 ? '1st Year'
       : m.yearNum === 2 ? '2nd Year'
@@ -270,9 +316,7 @@ export default function TeamPage() {
   }, {})
   const yearOrder = ['4th Year', '3rd Year', '2nd Year', '1st Year']
 
-  // Domain filter options for members
   const memberDomains = ['All', ...Array.from(new Set(allMembers.map(m => m.domain))).sort()]
-
   const filteredMembersByYear = Object.fromEntries(
     Object.entries(membersByYear).map(([year, list]) => [
       year,
@@ -282,10 +326,8 @@ export default function TeamPage() {
 
   return (
     <div className="pt-20">
-      {/* ── Header ── */}
       <section className="relative py-16 bg-grid overflow-hidden">
         <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
-        <div className="absolute -top-20 right-0 w-96 h-96 bg-violet-500/6 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-4 max-w-7xl relative">
           <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted-foreground mb-2">// the_team</p>
           <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 max-w-2xl leading-tight">
@@ -295,16 +337,14 @@ export default function TeamPage() {
             From faculty coordinators to first-year members — meet the engineers, designers, and builders
             who make EtHOS the best place to do hardware at IET College.
           </p>
-
-          {/* Quick stats */}
           <div className="flex flex-wrap gap-3">
             {[
-              { n: faculty.length,    label: 'Faculty' },
-              { n: leadership.length, label: 'Leadership' },
-              { n: core.length,       label: 'Core team' },
-              { n: technical.length,  label: 'Tech leads' },
-              { n: events.length,     label: 'Event team' },
-              { n: allMembers.length, label: 'Members' },
+              { n: sortedFaculty.length,    label: 'Faculty' },
+              { n: sortedLeadership.length, label: 'Leadership' },
+              { n: sortedCore.length,       label: 'Core team' },
+              { n: sortedTechnical.length,  label: 'Tech leads' },
+              { n: sortedEvents.length,     label: 'Event team' },
+              { n: allMembers.length,       label: 'Members' },
             ].map(({ n, label }) => (
               <div key={label} className="flex items-center gap-2 bg-card/70 backdrop-blur-sm border border-border rounded-lg px-4 py-2">
                 <span className="text-lg font-display font-bold text-primary">{n}</span>
@@ -317,55 +357,54 @@ export default function TeamPage() {
 
       <div className="container mx-auto px-4 max-w-7xl py-14">
 
-        {/* 1 ── Associated Faculty & Mentors (always at the very top) ── */}
-        {faculty.length > 0 && (
-          <Section label="// faculty_mentors" title="Associated Faculty & Mentors" count={faculty.length}>
+        {/* 1. Faculty - HOD first, then Faculty Coordinator, then Faculty */}
+        {sortedFaculty.length > 0 && (
+          <Section label="// faculty_mentors" title="Associated Faculty & Mentors" count={sortedFaculty.length}>
             <div className="grid gap-4">
-              {faculty.map(m => <FacultyCard key={m.id} member={m} />)}
+              {sortedFaculty.map(m => <FacultyCard key={m.id} member={m} />)}
             </div>
           </Section>
         )}
 
-        {/* 2 ── Leadership ── */}
-        {leadership.length > 0 && (
-          <Section label="// leadership" title="President & Vice President" count={leadership.length}>
-            <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
-              {leadership.map(m => <LeaderCard key={m.id} member={m} />)}
+        {/* 2. Leadership (Super-Admin > Admin) */}
+        {sortedLeadership.length > 0 && (
+          <Section label="// leadership" title="Leadership" count={sortedLeadership.length}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-3xl">
+              {sortedLeadership.map(m => <LeaderCard key={m.id} member={m} />)}
             </div>
           </Section>
         )}
 
-        {/* 3 ── Core Committee ── */}
-        {core.length > 0 && (
-          <Section label="// core_team" title="Core Committee" count={core.length}>
+        {/* 3. Core Committee */}
+        {sortedCore.length > 0 && (
+          <Section label="// core_team" title="Core Committee" count={sortedCore.length}>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {core.map(m => <StandardCard key={m.id} member={m} />)}
+              {sortedCore.map(m => <StandardCard key={m.id} member={m} />)}
             </div>
           </Section>
         )}
 
-        {/* 4 ── Technical Leads ── */}
-        {technical.length > 0 && (
-          <Section label="// technical_leads" title="Technical Domain Leads" count={technical.length}>
+        {/* 4. Technical Leads */}
+        {sortedTechnical.length > 0 && (
+          <Section label="// technical_leads" title="Technical Domain Leads" count={sortedTechnical.length}>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {technical.map(m => <StandardCard key={m.id} member={m} />)}
+              {sortedTechnical.map(m => <StandardCard key={m.id} member={m} />)}
             </div>
           </Section>
         )}
 
-        {/* 5 ── Events & Outreach ── */}
-        {events.length > 0 && (
-          <Section label="// events_outreach" title="Events & Outreach Team" count={events.length}>
+        {/* 5. Events */}
+        {sortedEvents.length > 0 && (
+          <Section label="// events_outreach" title="Events & Outreach Team" count={sortedEvents.length}>
             <div className="grid sm:grid-cols-3 gap-4 max-w-3xl">
-              {events.map(m => <StandardCard key={m.id} member={m} />)}
+              {sortedEvents.map(m => <StandardCard key={m.id} member={m} />)}
             </div>
           </Section>
         )}
 
-        {/* 6 ── Active Members — sorted 4th→3rd→2nd→1st ── */}
+        {/* 6. Active Members, year groups 4th > 3rd > 2nd > 1st */}
         {allMembers.length > 0 && (
           <Section label="// active_members" title="Active Members" count={allMembers.length}>
-            {/* Domain filter */}
             <div className="flex flex-wrap gap-2 mb-8">
               {memberDomains.map(d => (
                 <button key={d} onClick={() => setDomainFilter(d)}
@@ -378,8 +417,6 @@ export default function TeamPage() {
                 </button>
               ))}
             </div>
-
-            {/* Year groups: 4th → 3rd → 2nd → 1st */}
             <div className="space-y-8">
               {yearOrder.map(year => {
                 const list = filteredMembersByYear[year]
@@ -394,14 +431,27 @@ export default function TeamPage() {
                 )
               })}
             </div>
-
-            {Object.values(filteredMembersByYear).every(l => l.length === 0) && (
+            {Object.values(filteredMembersByYear).every(l => !l || l.length === 0) && (
               <p className="text-center py-16 text-muted-foreground text-sm">No members in this domain.</p>
             )}
           </Section>
         )}
 
-        {/* ── Join CTA ── */}
+        {/* 7. Ex-Members / Alumni */}
+        {exMembers.length > 0 && (
+          <Section label="// alumni" title="Alumni & Past Members" count={exMembers.length}>
+            <p className="text-sm text-muted-foreground mb-6 -mt-2">
+              Honoring those who shaped EtHOS. Alumni profiles remain accessible after graduation or departure.
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {[...exMembers]
+                .sort((a, b) => (b.exitYear ?? '').localeCompare(a.exitYear ?? ''))
+                .map(m => <ExMemberCard key={m.id} member={m} />)}
+            </div>
+          </Section>
+        )}
+
+        {/* Join CTA */}
         <div className="relative rounded-2xl border border-primary/20 bg-primary/[0.025] p-10 text-center overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
           <div className="absolute inset-0 bg-radial-glow pointer-events-none" />

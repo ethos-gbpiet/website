@@ -156,6 +156,15 @@ export const teamMembers = pgTable('team_members', {
   section:   varchar('section', { length: 50 }).notNull(),
   featured:  boolean('featured').default(false).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
+  photo:           text('photo'),
+  instagram:       text('instagram'),
+  twitter:         text('twitter'),
+  website:         text('website'),
+  resume:          text('resume'),
+  exMember:        boolean('ex_member').notNull().default(false),
+  exitYear:        text('exit_year'),
+  exitReason:      text('exit_reason'),
+  memberAccountId: text('member_account_id'),
 })
 
 export const resources = pgTable('resources', {
