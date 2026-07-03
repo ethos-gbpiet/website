@@ -8,7 +8,8 @@ import {
   Cpu, LayoutDashboard, Users, Shield, KeyRound, Settings, FileText,
   Users2, Activity, ChevronLeft, ChevronRight, LogOut, Crown,
   CalendarDays, FolderKanban, Megaphone, Mail, BarChart3,
-  ClipboardList, GraduationCap,
+  ClipboardList, GraduationCap, GitCommit, Image, MessageSquare,
+  Handshake, Send, UserCheck, ExternalLink, UserMinus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +23,7 @@ const sections = [
     items: [
       { href: '/super-admin/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
       { href: '/super-admin/activity',   icon: Activity,        label: 'Activity Logs' },
+      { href: '/super-admin/stats',      icon: BarChart3,       label: 'Analytics' },
     ],
   },
   {
@@ -33,25 +35,35 @@ const sections = [
     ],
   },
   {
-    label: 'MENTORSHIP',
+    label: 'SITE CONTENT',
     items: [
-      { href: '/super-admin/attendance',  icon: ClipboardList,  label: 'Attendance & Hours' },
-      { href: '/super-admin/apprentices', icon: GraduationCap,  label: 'Apprentices' },
+      { href: '/super-admin/settings',        icon: Settings,     label: 'Site Settings' },
+      { href: '/super-admin/team',            icon: Users2,       label: 'Team Members' },
+      { href: '/super-admin/ex-members',      icon: UserMinus,    label: 'Ex-Members' },
+      { href: '/super-admin/pages',           icon: FileText,     label: 'Page Content' },
+      { href: '/super-admin/announcements',   icon: Megaphone,    label: 'Announcements' },
+      { href: '/super-admin/projects',        icon: FolderKanban, label: 'Projects' },
+      { href: '/super-admin/project-updates', icon: GitCommit,    label: 'Project Updates' },
+      { href: '/super-admin/events',          icon: CalendarDays, label: 'Events' },
+      { href: '/super-admin/media',           icon: Image,        label: 'Media & Documents' },
     ],
   },
   {
-    label: 'CONTENT',
+    label: 'MEMBER PORTAL',
     items: [
-      { href: '/super-admin/settings', icon: Settings,  label: 'Site Settings' },
-      { href: '/super-admin/team',     icon: Users2,    label: 'Team Members' },
-      { href: '/super-admin/pages',    icon: FileText,  label: 'Page Content' },
+      { href: '/super-admin/members',     icon: UserCheck,     label: 'Member Accounts' },
+      { href: '/super-admin/submissions', icon: Send,          label: 'Submissions Review' },
+      { href: '/super-admin/attendance',  icon: ClipboardList, label: 'Attendance & Hours' },
+      { href: '/super-admin/apprentices', icon: GraduationCap, label: 'Apprentices' },
     ],
   },
   {
-    label: 'OVERVIEW',
+    label: 'INBOX',
     items: [
-      { href: '/super-admin/stats',  icon: BarChart3,   label: 'Analytics' },
-      { href: '/super-admin/inbox',  icon: Mail,        label: 'Inbox Summary' },
+      { href: '/super-admin/inbox',         icon: Mail,          label: 'Inbox Summary' },
+      { href: '/super-admin/feedback',      icon: MessageSquare, label: 'Feedback' },
+      { href: '/super-admin/collaboration', icon: Handshake,     label: 'Collaboration' },
+      { href: '/super-admin/messages',      icon: Mail,          label: 'Messages' },
     ],
   },
 ]
@@ -88,6 +100,22 @@ export function SuperAdminSidebar({ user }: SuperAdminSidebarProps) {
         </button>
       </div>
 
+      {/* Go to Website */}
+      <div className={cn('px-2 pt-3', collapsed && 'px-1')}>
+        <Link
+          href="/"
+          target="_blank"
+          title="Go to Website"
+          className={cn(
+            'flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-mono border border-amber-500/30 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15 transition-colors',
+            collapsed && 'justify-center px-1'
+          )}
+        >
+          <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+          {!collapsed && <span className="truncate">Go to Website</span>}
+        </Link>
+      </div>
+
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
         {sections.map((section) => (
@@ -120,7 +148,7 @@ export function SuperAdminSidebar({ user }: SuperAdminSidebarProps) {
         ))}
       </nav>
 
-      {/* User + sign out */}
+      {/* Footer */}
       <div className="border-t border-border p-2 space-y-1">
         {!collapsed && (
           <div className="flex items-center gap-2 px-2 py-2">

@@ -28,6 +28,13 @@ export interface TeamMember {
   email?: string
   section: 'faculty' | 'leadership' | 'core' | 'technical' | 'events' | 'member'
   featured?: boolean
+  instagram?:       string
+  twitter?:         string
+  website?:         string
+  exMember?:        boolean
+  exitYear?:        string
+  exitReason?:      string
+  memberAccountId?: string
 }
 
 export interface SiteSettings {

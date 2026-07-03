@@ -15,8 +15,20 @@ async function assertTeamWrite() {
   return null
 }
 
-export async function GET() {
-  const rows = await db.select().from(teamMembers).orderBy(teamMembers.sortOrder)
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const exOnly = searchParams.get('ex') === '1'
+
+  if (exOnly) {
+    const rows = await db.select().from(teamMembers)
+      .where(eq(teamMembers.exMember, true))
+      .orderBy(teamMembers.sortOrder)
+    return NextResponse.json(rows, { headers: NO_CACHE })
+  }
+
+  const rows = await db.select().from(teamMembers)
+    .where(eq(teamMembers.exMember, false))
+    .orderBy(teamMembers.sortOrder)
   return NextResponse.json(rows, { headers: NO_CACHE })
 }
 
@@ -31,19 +43,28 @@ export async function POST(req: NextRequest) {
     const id = b.id || `tm_${Date.now()}`
     const [row] = await db.insert(teamMembers).values({
       id,
-      name: b.name,
-      role: b.role,
-      year: b.year ?? null,
-      yearNum: b.yearNum ?? null,
-      bio: b.bio ?? null,
-      domain: b.domain ?? null,
-      avatar: b.avatar ?? null,
-      github: b.github ?? null,
-      linkedin: b.linkedin ?? null,
-      email: b.email ?? null,
-      section: b.section || 'core',
-      featured: !!b.featured,
-      sortOrder: b.sortOrder ?? 0,
+      name:            b.name,
+      role:            b.role,
+      year:            b.year            ?? null,
+      yearNum:         b.yearNum         ?? 0,
+      bio:             b.bio             ?? null,
+      domain:          b.domain          ?? null,
+      avatar:          b.avatar          ?? null,
+      photo:           b.photo           ?? null,
+      github:          b.github          ?? null,
+      linkedin:        b.linkedin        ?? null,
+      instagram:       b.instagram       ?? null,
+      twitter:         b.twitter         ?? null,
+      website:         b.website         ?? null,
+      email:           b.email           ?? null,
+      resume:          b.resume          ?? null,
+      section:         b.section         || 'member',
+      featured:        !!b.featured,
+      sortOrder:       b.sortOrder       ?? 0,
+      exMember:        !!b.exMember,
+      exitYear:        b.exitYear        ?? null,
+      exitReason:      b.exitReason      ?? null,
+      memberAccountId: b.memberAccountId ?? null,
     }).returning()
     return NextResponse.json(row)
   } catch (e: any) {
@@ -58,19 +79,28 @@ export async function PUT(req: NextRequest) {
     const b = await req.json()
     if (!b.id) return NextResponse.json({ ok: false, error: 'Missing id' }, { status: 400 })
     const [row] = await db.update(teamMembers).set({
-      name: b.name,
-      role: b.role,
-      year: b.year ?? null,
-      yearNum: b.yearNum ?? null,
-      bio: b.bio ?? null,
-      domain: b.domain ?? null,
-      avatar: b.avatar ?? null,
-      github: b.github ?? null,
-      linkedin: b.linkedin ?? null,
-      email: b.email ?? null,
-      section: b.section || 'core',
-      featured: !!b.featured,
-      sortOrder: b.sortOrder ?? 0,
+      name:            b.name,
+      role:            b.role,
+      year:            b.year            ?? null,
+      yearNum:         b.yearNum         ?? 0,
+      bio:             b.bio             ?? null,
+      domain:          b.domain          ?? null,
+      avatar:          b.avatar          ?? null,
+      photo:           b.photo           ?? null,
+      github:          b.github          ?? null,
+      linkedin:        b.linkedin        ?? null,
+      instagram:       b.instagram       ?? null,
+      twitter:         b.twitter         ?? null,
+      website:         b.website         ?? null,
+      email:           b.email           ?? null,
+      resume:          b.resume          ?? null,
+      section:         b.section         || 'member',
+      featured:        !!b.featured,
+      sortOrder:       b.sortOrder       ?? 0,
+      exMember:        !!b.exMember,
+      exitYear:        b.exitYear        ?? null,
+      exitReason:      b.exitReason      ?? null,
+      memberAccountId: b.memberAccountId ?? null,
     }).where(eq(teamMembers.id, b.id)).returning()
     if (!row) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 })
     return NextResponse.json(row)
