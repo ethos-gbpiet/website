@@ -1,0 +1,19 @@
+{
+  "siteName": "EtHOS",
+  "siteTagline": "Electronics and Hardware Oriented Society",
+  "heroHeading": ["Design.", "Build.", "Power."],
+  "heroSubtext": "EtHOS is the Electronics and Hardware Oriented Society of IET College. We design PCBs, build embedded systems, and push the boundaries of hardware engineering — from schematics to silicon.",
+  "aboutTitle": "Where the schematic becomes real",
+  "aboutBody": "EtHOS is the dedicated electronics and hardware society of IET College, Dehradun. Founded to bridge the gap between classroom theory and real-world circuit design, we give students access to professional PCB tools, a fully-stocked component lab, and a community of engineers obsessed with making things work.",
+  "contactEmail": "ethos@iet.edu",
+  "contactPhone": "+91 98765 43210",
+  "contactAddress": "PCB Lab, Block D, IET College, Dehradun — 248001",
+  "contactHours": "Mon – Sat, 10 AM – 8 PM",
+  "github": "https://github.com/ethos-iet",
+  "twitter": "https://twitter.com",
+  "linkedin": "https://linkedin.com",
+  "collegeFullName": "IET College, Dehradun",
+  "foundedYear": "2014",
+  "adminUsername": "ethos_admin",
+  "adminPassword": "EtHOS@2025"
+}
